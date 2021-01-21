@@ -28,6 +28,7 @@ apt update && apt upgrade -y
 echo "finished upgrading the server"
 
 apt install docker.io -y
+systemctl enable docker
 echo "installed docker.io"
 
 usermod -aG docker ${username}
@@ -38,6 +39,11 @@ chmod +x /usr/local/bin/docker-compose
 echo "installed docker-compose"
 
 ufw allow $sshport
+
+## Adjust to your provate subnet
+sudo ufw allow from 10.114.0.0/20 to any port 22,2376,2377,7946 proto tcp
+sudo ufw allow from 10.114.0.0/20 to any port 7946,4789 proto udp
+
 echo "y" | sudo ufw enable
 echo "enabled ufw and allowed ${sshport}"
 
