@@ -6,6 +6,13 @@ read -p 'new SSH Port: ' sshport
 read -p 'Username: ' username
 read -sp 'Password: ' passwd
 echo
+read -p 'Do you want to enable Docker Swarm? (y/n): ' -n 1 swarmMode
+echo
+if [[ $swarmMode =~ ^[Yy]$ ]]
+then
+  read -p 'Please enter your private network of your docker nodes. e.g. 10.114.0.0/20: ' dockerSubnet
+fi
+# read -p ''
 
 adduser ${username} --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
 echo "${username}:${passwd}" | sudo chpasswd
@@ -19,7 +26,7 @@ sed -i -e '/^#MaxAuthTries/s/^.*$/MaxAuthTries 2/' /etc/ssh/sshd_config
 sed -i -e '/^#MaxAuthTries/s/^.*$/MaxAuthTries 2/' /etc/ssh/sshd_config
 sed -i -e '$aAllowUsers '${username}'' /etc/ssh/sshd_config
 sed -i -e '/^#Port/s/^.*$/Port '${sshport}'/' /etc/ssh/sshd_config
-## if the config has an alternativ port
+## if the config already has an alternativ port
 sed -i -e '/^Port/s/^.*$/Port '${sshport}'/' /etc/ssh/sshd_config
 systemctl restart sshd
 echo "finished updating and restarting ssh"
@@ -41,8 +48,11 @@ echo "installed docker-compose"
 ufw allow $sshport
 
 ## Adjust to your provate subnet
-sudo ufw allow from 10.114.0.0/20 to any port 22,2376,2377,7946 proto tcp
-sudo ufw allow from 10.114.0.0/20 to any port 7946,4789 proto udp
+if [[ $swarmMode =~ ^[Yy]$ ]]
+then
+sudo ufw allow from ${dockerSubnet} to any port 22,2376,2377,7946 proto tcp
+sudo ufw allow from ${dockerSubnet} to any port 7946,4789 proto udp
+fi
 
 echo "y" | sudo ufw enable
 echo "enabled ufw and allowed ${sshport}"
