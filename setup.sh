@@ -58,9 +58,8 @@ echo "y" | sudo ufw enable
 echo "enabled ufw and allowed ${sshport}"
 
 mkdir /home/${username}/.ssh
-cp /root/.ssh/authorized_keys /home/${username}/.ssh/authorized_keys
+cp /${USER}/.ssh/authorized_keys /home/${username}/.ssh/authorized_keys
 chown -R ${username}:${username} /home/${username}/.ssh
-echo "added authorized keys to ${username}"
+echo "added authorized keys from ${USER} to ${username}"
 
-echo "will reboot"
-reboot
+echo "Please consider rebooting the system and connect to ssh via port ${sshport} and username ${username}"
