@@ -31,10 +31,10 @@ sed -i -e '/^Port/s/^.*$/Port '${sshport}'/' /etc/ssh/sshd_config
 systemctl restart sshd
 echo "finished updating and restarting ssh"
 
-apt update && apt upgrade -y
+apt -qq update && apt -qq upgrade -y
 echo "finished upgrading the server"
 
-apt install docker.io -y
+apt -qq install docker.io -y
 systemctl enable docker
 echo "installed docker.io"
 
