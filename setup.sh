@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo Please tell me some details for this setup.
-read -p 'docker-compose Version: (e.g. "1.27.4") ' dcversion
+read -p 'docker-compose Version: (e.g. "2.9.0) ' dcversion
 read -p 'new SSH Port: ' sshport
 read -p 'Username: ' username
 read -sp 'Password: ' passwd
@@ -34,15 +34,22 @@ echo "finished updating and restarting ssh"
 apt -qq update && apt -qq upgrade -y
 echo "finished upgrading the server"
 
-apt -qq install docker.io -y
+
+apt remove docker docker-engine docker.io containerd runc
+apt install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt update -y
+apt install docker-ce -y
 systemctl enable docker
 echo "installed docker.io"
 
 usermod -aG docker ${username}
 echo "added ${username} to docker group"
 
-curl -sL "https://github.com/docker/compose/releases/download/${dcversion}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
+mdkir -p /home/${username}/.docker/cli-plugins
+curl -SL https://github.com/docker/compose/releases/download/${dcversion}/docker-compose-linux-x86_64 -o /home/${username}/.docker/cli-plugins/docker-compose
+chmod +x /home/${username}/.docker/cli-plugins/docker-compose
 echo "installed docker-compose"
 
 ufw allow $sshport
