@@ -50,6 +50,7 @@ echo "added ${username} to docker group"
 mdkir -p /home/${username}/.docker/cli-plugins
 curl -SL https://github.com/docker/compose/releases/download/v${dcversion}/docker-compose-linux-x86_64 -o /home/${username}/.docker/cli-plugins/docker-compose
 chmod +x /home/${username}/.docker/cli-plugins/docker-compose
+chown -R ${username}:${username} /home/${username}/.docker
 echo "installed docker-compose"
 
 ufw allow $sshport
